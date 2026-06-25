@@ -26,7 +26,9 @@
       linear-gradient(160deg,var(--bg),var(--bg2));
     min-height:100%;padding:clamp(16px,3vw,38px);-webkit-font-smoothing:antialiased;}
   header{text-align:center;margin-bottom:clamp(10px,2vw,18px)}
-  .eyebrow{font-size:13px;letter-spacing:.34em;color:var(--muted);text-transform:uppercase;margin-bottom:9px;font-weight:500}
+  .author{font-size:14px;color:var(--muted);margin-top:12px;font-weight:500;letter-spacing:.05em}
+  .author a{color:var(--c-cyan);text-decoration:none;border-bottom:1px dashed var(--c-cyan);padding-bottom:2px;transition:.2s}
+  .author a:hover{opacity:.7;border-bottom-style:solid}
   h1{font-family:var(--display);font-size:clamp(32px,7vw,64px);line-height:1.05;
     background:linear-gradient(100deg,var(--c-sky),var(--c-cyan) 35%,var(--c-mint) 65%,var(--c-cream));
     -webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 26px rgba(112,205,255,.25));}
@@ -96,8 +98,11 @@
 </head>
 <body>
   <header>
-    <div class="eyebrow">SHADOWVERSE · STEP-BY-STEP FORGE</div>
     <h1>我也是 SZB 设计师。</h1>
+    <!-- 请在下面 href=" " 的引号里面填入你真实的B站主页链接 -->
+    <div class="author">
+      作者：<a href="https://space.bilibili.com/你的UID" target="_blank">B站 @黒白47</a>
+    </div>
   </header>
 
   <div class="rail" id="rail"></div>
