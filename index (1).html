@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我也是 SZB 设计师。</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --c-sky:#70CDFF; --c-cyan:#9DFCF8; --c-mint:#94F2D4; --c-green:#A5E8B7; --c-cream:#FFFAE6;
+    --bg:#0a1e26; --bg2:#0e2a33; --line:rgba(157,252,248,.16);
+    --text:#eafaf6; --muted:#8fb6b3;
+    --display:"ZCOOL KuaiLe","Noto Sans SC",system-ui,sans-serif;
+    --body:"Noto Sans SC",system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    --num:"Baloo 2","Noto Sans SC",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:var(--body);color:var(--text);
+    background:
+      radial-gradient(1200px 700px at 18% -10%, rgba(112,205,255,.16), transparent 60%),
+      radial-gradient(1000px 700px at 95% 10%, rgba(148,242,212,.13), transparent 55%),
+      radial-gradient(900px 800px at 50% 120%, rgba(255,250,230,.08), transparent 60%),
+      linear-gradient(160deg,var(--bg),var(--bg2));
+    min-height:100%;padding:clamp(16px,3vw,38px);-webkit-font-smoothing:antialiased;}
+  header{text-align:center;margin-bottom:clamp(10px,2vw,18px)}
+  .eyebrow{font-size:13px;letter-spacing:.34em;color:var(--muted);text-transform:uppercase;margin-bottom:9px;font-weight:500}
+  h1{font-family:var(--display);font-size:clamp(32px,7vw,64px);line-height:1.05;
+    background:linear-gradient(100deg,var(--c-sky),var(--c-cyan) 35%,var(--c-mint) 65%,var(--c-cream));
+    -webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 26px rgba(112,205,255,.25));}
+  .stage{display:grid;grid-template-columns:minmax(300px,430px) minmax(280px,340px);
+    gap:clamp(18px,4vw,52px);align-items:start;justify-content:center;max-width:980px;margin:24px auto 0}
+  @media(max-width:840px){.stage{grid-template-columns:1fr;gap:26px}}
+  .rail{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:14px}
+  .pip{font-size:11px;padding:4px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted);transition:.25s}
+  .pip.active{background:var(--c-cyan);color:#06222b;border-color:var(--c-cyan);font-weight:700}
+  .pip.done{color:var(--text);border-color:rgba(148,242,212,.5)}
+  .wheel-wrap{display:flex;flex-direction:column;align-items:center;gap:14px}
+  .step-cap{font-family:var(--display);font-size:clamp(18px,2.6vw,24px);text-align:center;min-height:1.2em;color:var(--c-cream)}
+  .wheel-stage{position:relative;width:min(82vw,380px);aspect-ratio:1}
+  .wheel{width:100%;height:100%;transition:transform 2.4s cubic-bezier(.1,.7,.1,1);filter:drop-shadow(0 16px 40px rgba(0,0,0,.45))}
+  .seg-label{font-family:var(--body);font-weight:900;letter-spacing:.02em}
+  .hub{position:absolute;inset:0;margin:auto;width:64px;height:64px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#fff,#dff6f2 40%,#bfeae6);border:3px solid rgba(255,255,255,.85);
+    display:grid;place-items:center;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.4),inset 0 0 14px rgba(112,205,255,.4)}
+  .hub span{font-family:var(--display);font-size:14px;color:#0a3a47;line-height:1;text-align:center}
+  .pointer{position:absolute;top:-6px;left:50%;transform:translateX(-50%);z-index:3;width:0;height:0;
+    border-left:15px solid transparent;border-right:15px solid transparent;border-top:28px solid var(--c-cream);
+    filter:drop-shadow(0 4px 6px rgba(0,0,0,.5))}
+  .btns{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center}
+  .spin-btn{font-family:var(--display);font-size:19px;color:#06222b;padding:13px 34px;border:none;border-radius:999px;cursor:pointer;
+    background:linear-gradient(120deg,var(--c-cyan),var(--c-mint));box-shadow:0 10px 26px rgba(148,242,212,.35),inset 0 2px 0 rgba(255,255,255,.55);
+    transition:transform .12s,filter .2s,opacity .2s;letter-spacing:.05em}
+  .spin-btn:hover{transform:translateY(-2px);filter:brightness(1.05)}
+  .spin-btn:active{transform:translateY(1px)}
+  .spin-btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+  .ghost-btn{font-family:var(--body);font-weight:700;font-size:13px;color:var(--text);cursor:pointer;padding:11px 18px;border-radius:999px;
+    border:1px solid var(--line);background:rgba(255,255,255,.04);transition:.18s}
+  .ghost-btn:hover{background:rgba(157,252,248,.12);border-color:var(--c-cyan)}
+  .spin-btn:focus-visible,.ghost-btn:focus-visible{outline:3px solid var(--c-sky);outline-offset:3px}
+  .card-slot{display:flex;flex-direction:column;align-items:center;gap:14px}
+  .card{--accent:var(--c-mint);--acc-text:#06222b;position:relative;width:298px;aspect-ratio:5/7;border-radius:20px;
+    background:linear-gradient(170deg,#0f2c35,#0a1f27);padding:7px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+  .card::before{content:"";position:absolute;inset:0;border-radius:20px;padding:2px;
+    background:linear-gradient(150deg,var(--accent),rgba(255,255,255,.25),var(--accent));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+  .card-inner{position:relative;height:100%;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;background:#0c252d}
+  .cost{position:absolute;top:10px;left:10px;z-index:4;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;
+    font-family:var(--num);font-weight:800;font-size:24px;color:var(--acc-text);background:radial-gradient(circle at 34% 30%,#fff,var(--accent) 78%);
+    border:2px solid rgba(255,255,255,.85);box-shadow:0 4px 12px rgba(0,0,0,.5);transition:.3s}
+  .cost.q{color:#7fb0ad;background:radial-gradient(circle at 34% 30%,#1a3a43,#102b33)}
+  .art{height:38%;position:relative;display:grid;place-items:center;
+    background:radial-gradient(120% 120% at 50% 0%,color-mix(in srgb,var(--accent) 55%,transparent),transparent 70%),linear-gradient(160deg,#103039,#0a2027)}
+  .art::after{content:"";position:absolute;inset:auto 0 0 0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent)}
+  .cname{padding:11px 14px 5px;font-family:var(--display);font-size:20px;line-height:1.1}
+  .ctype{padding:0 14px 8px;font-size:11px;color:var(--muted);letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,.07)}
+  .effects{flex:1;padding:10px 14px;display:flex;flex-direction:column;gap:7px;overflow-y:auto;font-size:12.5px;line-height:1.5}
+  .kws{display:flex;flex-wrap:wrap}
+  .kw{display:inline-flex;font-weight:700;color:var(--acc-text);background:var(--accent);padding:2px 9px;border-radius:6px;font-size:12px;margin:0 4px 4px 0}
+  .eff-line{display:flex;gap:7px;animation:lineIn .4s}
+  .eff-line .dot{color:var(--accent);flex:none}
+  @keyframes lineIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+  .trigger{margin-bottom:3px;padding:8px 10px;border-radius:9px;font-size:12px;line-height:1.45;animation:lineIn .4s;
+    background:linear-gradient(100deg,color-mix(in srgb,var(--c-cream) 26%,transparent),color-mix(in srgb,var(--accent) 18%,transparent));
+    border:1px solid color-mix(in srgb,var(--c-cream) 50%,transparent)}
+  .trigger b{color:var(--c-cream)}
+  .strong{color:var(--c-cream);text-shadow:0 0 12px color-mix(in srgb,var(--c-cream) 55%,transparent);font-weight:700}
+  .stats{display:flex;justify-content:space-between;padding:9px 16px;background:rgba(0,0,0,.28);border-top:1px solid rgba(255,255,255,.08);
+    font-family:var(--num);font-weight:800;font-size:23px}
+  .stats .atk{color:#ffd27a}.stats .hp{color:#ff8f9c}.stats .q{color:#5d7c83}
+  .stats span small{font-family:var(--body);font-size:11px;color:var(--muted);font-weight:600;margin-right:3px}
+  @media (prefers-reduced-motion: reduce){.wheel{transition-duration:.5s}}
+</style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">SHADOWVERSE · STEP-BY-STEP FORGE</div>
+    <h1>我也是 SZB 设计师。</h1>
+  </header>
+
+  <div class="rail" id="rail"></div>
+
+  <main class="stage">
+    <div class="wheel-wrap">
+      <div class="step-cap" id="cap">先转个职业</div>
+      <div class="wheel-stage">
+        <div class="pointer"></div>
+        <svg class="wheel" id="wheel" viewBox="0 0 320 320" aria-label="转盘"></svg>
+        <div class="hub"><span id="hub">职业</span></div>
+      </div>
+      <div class="btns">
+        <button class="spin-btn" id="spinBtn">转！</button>
+        <button class="ghost-btn" id="autoBtn">⚡ 一键转完</button>
+        <button class="ghost-btn" id="resetBtn">↻ 重来</button>
+      </div>
+    </div>
+
+    <div class="card-slot">
+      <div class="card" id="card">
+        <div class="card-inner">
+          <div class="cost q" id="cCost">?</div>
+          <div class="art"></div>
+          <div class="cname" id="cName">随机 ? 随从</div>
+          <div class="ctype" id="cType">? 费 · ? · 随从</div>
+          <div class="effects" id="cEff"></div>
+          <div class="stats">
+            <span class="atk q" id="cAtk">?</span>
+            <span class="hp q" id="cHp">?</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+<script>
+/* ===== 工具 ===== */
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const PAL=["#70CDFF","#9DFCF8","#94F2D4","#A5E8B7","#FFFAE6"];
+const MUTED="#cfe0dc";
+function textOn(hex){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  const L=(0.299*r+0.587*g+0.114*b)/255; return L<0.58?"#f4fbfa":"#0a1e26";}
+
+/* ===== 通用效果池：通过 weight 控制，不会产生重复切片 ===== */
+const COMMON=[
+  {short:"疾驰",   full:"疾驰", kw:true, weight: 1}, 
+  {short:"突进",   full:"突进", kw:true, weight: 3}, 
+  {short:"守护",   full:"守护", kw:true, weight: 3},
+  {short:"+1/+1", full:s=>`其他随从获得 ${s?"+2/+2":"+1/+1"}`, rep:x=>`其他随从获得 +${x}/+${x}`, weight: 3},
+  {short:"破坏随从",full:s=>`破坏对方场上${s?"两个":"一个"}随从`, rep:x=>`破坏对方场上 ${x} 个随从`, weight: 3},
+  {short:"自我复制",full:"召唤一张本随从的复制", rep:x=>`召唤 ${x} 张本随从的复制`, weight: 1}, 
+];
+
+/* ===== 职业 ===== */
+const CLASSES=[
+  {id:"forest",name:"精灵",color:"#57C06A",
+    triggers:[{short:"连击X",x:[2,3,4,5],label:x=>`连击 ${x}`}],
+    traits:[
+      {short:"群体减攻",cond:true,full:(s,x)=>`对方场上所有随从获得 -0/-${x??(s?R(3,4):R(1,2))}`},
+      {short:"召唤精灵",full:s=>`进场时，召唤${s?"三":"两"}个 1/1 精灵`},
+    ]},
+  {id:"royal",name:"皇家护卫",color:"#E0C341",costs:[3,5,8],
+    triggers:[{short:"协作X",x:[5,10,15,20],label:x=>`协作 ${x}`}],
+    traits:[{short:"召唤骑士",cond:true,full:(s,x)=>`进场时，召唤 ${Math.max(1,Math.floor((x||5)/5))} 个 2/2 骑士`}]},
+  {id:"rune",name:"巫师",color:"#8E7BE6",
+    triggers:[{short:"土之秘术X",x:[2,3],repeat:true,label:x=>`土之秘术 ${x}`},{short:"魔力增幅X",x:[2,3,4,5],repeat:true,label:x=>`魔力增幅 ${x}`}],
+    traits:[
+      {short:"法术伤害",cond:true,full:(s,x)=>`对对方一个随从造成 ${x??(s?R(4,6):R(2,3))} 点伤害`, rep:x=>`对对方一个随从造成 ${x} 点伤害`},
+      {short:"自我减费",full:s=>`自身减少 ${s?R(3,4):R(1,2)} 费`, rep:x=>`自身减少 ${x} 费`, minCost:6},
+    ]},
+  {id:"dragon",name:"龙族",color:"#EA9A3E",big:true,
+    triggers:[{short:"觉醒",label:_=>"如果已经觉醒"},{short:"海洋随从",label:_=>"每当海洋随从进场时"},{short:"弃牌",label:_=>"弃一张牌"}],
+    traits:[
+      {short:"回复生命",full:s=>`回复 ${s?R(6,9):R(3,5)} 点生命值`},
+      {short:"抽牌",    full:s=>`抽 ${s?3:R(1,2)} 张牌`},
+      {short:"召唤虎鲸",full:s=>`进场时，召唤${s?"两":"一"}个 3/3 虎鲸`}
+    ]},
+  {id:"nightmare",name:"梦魇",color:"#C73E64",
+    triggers:[{short:"死灵术X",x:[2,4,6,8],label:x=>`死灵术 ${x}`}],
+    traits:[
+      {short:"自伤抽牌",full:s=>`对自身造成 1 点伤害，然后${s?"抽两张牌":"抽一张牌"}`},
+      {short:"必杀",    full:s=>`获得【必杀】${s?"与【守护】":""}`},
+      {short:"召唤怨灵",full:s=>`召唤${s?"四":"两"}个 1/1 怨灵`},
+      {short:"亡者召唤",cond:true,full:(s,x)=>`亡者召唤 ${Math.max(1,Math.floor((x||2)/2))}`},
+    ]},
+  {id:"bishop",name:"主教",color:"#E4E7EA",
+    triggers:[{short:"护符≥X",x:[2,3,4],label:x=>`场上护符 ≥ ${x} 张`},{short:"无攻击",label:_=>"本回合无随从发动过攻击"}],
+    traits:[
+      {short:"消失敌牌",full:(s,x)=>`随机消失对方场上的 ${x??(s?2:1)} 张牌`},
+      {short:"护符倒数",full:s=>`我方所有护符的倒数 -${s?2:1}`},
+    ]},
+  {id:"portal",name:"超越者",color:"#43C0E8",
+    triggers:[{short:"种类X",x:[3,4,5,6],label:x=>`进入战场的创造物种类数为 ${x}`},{short:"破坏卡牌",label:_=>"破坏场上的一张卡牌"}],
+    traits:[{short:"打X血",full:(s,x)=> x!=null ? `对敌方主战者造成 ${x} 点伤害` : `对敌方主战者造成等同于此随从攻击力${s?" 两倍":""}的伤害`}]},
+  {id:"neutral",name:"中立",color:"#9AA7AC",vanilla:true,triggers:[],traits:[]},
+];
+const byId=id=>CLASSES.find(c=>c.id===id);
+function costSet(c){ 
+  if(c.costs)return c.costs; 
+  if(c.id==="dragon")return [5,6,7,8,9,10,11,12,13,14,15]; 
+  return [1,2,3,4,5,6,7,8,9,10]; 
+}
+
+/* ===== 效果池：不再重复插入，而是赋予权重 ===== */
+function effectPool(){
+  const c=draft.cls,cost=draft.cost;
+  const pool=[];
+  COMMON.forEach(e => {
+    if(!usedEff.includes(e.short)) pool.push(e); // 继承原本的 weight
+  });
+  c.traits.forEach(t=>{
+    if(t.minCost&&cost<t.minCost) return;
+    if(t.cond&&!draft.hasCond) return; 
+    if(!usedEff.includes(t.short)){
+      pool.push({...t, weight: 5}); // 动态赋予职业特色高权重（即大扇区）
+    }
+  });
+  return pool;
+}
+
+/* ===== 转盘绘制：按权重动态分配角度 ===== */
+const wheel=document.getElementById("wheel");
+const polar=(r,deg)=>{const a=(deg-90)*Math.PI/180;return [160+r*Math.cos(a),160+r*Math.sin(a)];};
+function labelSVG(x,y,label,fs,tc){
+  const lines=Array.isArray(label)?label:[label];
+  const lh=fs*1.05, start=-((lines.length-1)/2)*lh, fill=tc||"#0a1e26";
+  let t=`<text class="seg-label" x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle" fill="${fill}" style="font-size:${fs}px">`;
+  lines.forEach((ln,i)=>t+=`<tspan x="${x.toFixed(1)}" dy="${i===0?start.toFixed(1):lh.toFixed(1)}">${ln}</tspan>`);
+  return t+"</text>";
+}
+
+function drawWheel(segs){
+  const n=segs.length, fs=n<=4?16:n<=6?15:n<=8?13.5:n<=10?12.5:11;
+  let html="";
+  const totalWeight = segs.reduce((sum, s) => sum + (s.weight || 1), 0);
+  let currentAngle = 0;
+
+  if(n===1){
+    html=`<circle cx="160" cy="160" r="152" fill="${segs[0].color}" stroke="#0a1e26" stroke-width="2"/>`;
+    html+=labelSVG(160,160,segs[0].label,fs+2,segs[0].tc);
+    segs[0].startAngle = 0;
+    segs[0].endAngle = 360;
+  }else{
+    segs.forEach((s,i)=>{
+      const step = ((s.weight || 1) / totalWeight) * 360;
+      const a=currentAngle, b=currentAngle+step;
+      const [x1,y1]=polar(152,a), [x2,y2]=polar(152,b);
+      // SVG Arc: 如果角度超过 180，启用大弧标识
+      const largeArcFlag = step > 180 ? 1 : 0;
+      html+=`<path d="M160 160 L${x1.toFixed(2)} ${y1.toFixed(2)} A152 152 0 ${largeArcFlag} 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z" fill="${s.color}" stroke="#0a1e26" stroke-width="2"/>`;
+      
+      const [lx,ly]=polar(152*0.64, a+step/2);
+      html+=labelSVG(lx,ly,s.label,fs,s.tc);
+      
+      s.startAngle = a;
+      s.endAngle = b;
+      currentAngle += step;
+    });
+  }
+  wheel.innerHTML=html;
+}
+
+/* ===== 状态机与加权旋转计算 ===== */
+const cap=document.getElementById("cap"), hub=document.getElementById("hub");
+const spinBtn=document.getElementById("spinBtn"), autoBtn=document.getElementById("autoBtn"), resetBtn=document.getElementById("resetBtn");
+let queue=[], current=null, segs=[], baseTurn=0, busy=false, draft=null, usedEff=[];
+const RAIL=["职业","费用","效果数","触发?","条件","X","效果","完成"];
+let doneSet=new Set();
+function setRail(i){document.getElementById("rail").innerHTML=RAIL.map((t,k)=>`<span class="pip ${k===i?'active':''} ${doneSet.has(k)?'done':''}">${t}</span>`).join("");}
+
+function resetGame(){
+  autoBtn.disabled=false; spinBtn.disabled=false; spinBtn.textContent="转！";
+  draft={cls:null,cost:null,nEff:0,hasCond:null,cond:null,condX:null,effects:[],fin:false,atk:null,hp:null};
+  usedEff=[]; queue=[]; doneSet=new Set(); setRail(0);
+  updCard();
+  queue.push(S_CLASS); loadStep();
+}
+function enqueueEffects(){ for(let i=0;i<draft.nEff;i++) queue.push(S_EFF(i+1)); }
+function loadStep(){
+  if(queue.length===0){ finish(); return; }
+  current=queue.shift(); segs=current.segs(); drawWheel(segs);
+  cap.innerHTML=current.cap; hub.textContent=current.hub; setRail(current.rail);
+  spinBtn.disabled=false;
+}
+
+function doSpin(dur){
+  return new Promise(res=>{
+    busy=true; spinBtn.disabled=true;
+    
+    // 1. 根据权重随出一个获胜者
+    const totalWeight = segs.reduce((sum, s) => sum + (s.weight || 1), 0);
+    let rand = Math.random() * totalWeight;
+    let idx = 0;
+    for(let i=0; i<segs.length; i++){
+      const w = segs[i].weight || 1;
+      if(rand < w){ idx = i; break; }
+      rand -= w;
+    }
+    const seg = segs[idx];
+    
+    // 2. 计算扇区范围内的一个随机角度（加上 padding 避免正好停在分割线上）
+    const step = seg.endAngle - seg.startAngle;
+    const padding = step > 10 ? 4 : 0;
+    const hitAngle = seg.startAngle + padding + Math.random() * (step - 2 * padding);
+    
+    // 3. 将对应角度旋转到顶部 (0度位置)
+    const target = (360 - hitAngle) % 360;
+    const cur = ((baseTurn % 360) + 360) % 360;
+    const delta = ((target - cur) % 360 + 360) % 360;
+    baseTurn += 360 * R(4, 6) + delta;
+    
+    wheel.style.transition=`transform ${dur}s cubic-bezier(.1,.7,.1,1)`;
+    wheel.style.transform=`rotate(${baseTurn}deg)`;
+    setTimeout(()=>{busy=false;res(seg);}, dur*1000+50);
+  });
+}
+
+async function spinOnce(fast){
+  if(busy||!current) return;
+  const seg=await doSpin(fast?0.85:2.2);
+  const step=current; current=null; doneSet.add(step.rail);
+  step.done(seg);
+  await new Promise(r=>setTimeout(r,fast?120:340));
+  loadStep();
+}
+spinBtn.addEventListener("click",()=>spinOnce(false));
+resetBtn.addEventListener("click",resetGame);
+autoBtn.addEventListener("click",async()=>{ if(busy)return; autoBtn.disabled=true; spinBtn.disabled=true; while(current){ await spinOnce(true); } });
+
+/* ===== 步骤 ===== */
+const S_CLASS={ rail:0, hub:"职业", cap:"先转个职业",
+  segs:()=>CLASSES.map(c=>({label:[c.name],color:c.color,tc:textOn(c.color),value:c.id})),
+  done:s=>{ draft.cls=byId(s.value); const card=document.getElementById("card");
+    card.style.setProperty("--accent",draft.cls.color); card.style.setProperty("--acc-text",textOn(draft.cls.color));
+    updCard(); queue.push(S_COST); }
+};
+const S_COST={ rail:1, hub:"费用", cap:"这张卡几费？",
+  segs:()=>costSet(draft.cls).map((v,i)=>({label:String(v),color:PAL[i%5],value:v})),
+  done:s=>{ 
+    draft.cost=s.value; 
+    updCard(); 
+    if(draft.cls.id === "dragon" && draft.cost > 10) {
+      queue.push(S_REDUCE_COST);
+    } else {
+      queue.push(S_COUNT); 
+    }
+  }
+};
+const S_REDUCE_COST={ rail:1, hub:"减费", cap:"超高费！转个减费机制",
+  segs:()=>[
+    {label:["觉醒时","回合末减3"], color:PAL[0], value:"如果已经觉醒，回合结束时自身费用 -3"},
+    {label:["海洋随从","进场减1"], color:PAL[1], value:"每当海洋随从进场时，自身费用 -1"},
+    {label:["弃牌时","费用减1"], color:PAL[2], value:"自己舍弃卡牌时，自身费用 -1"}
+  ],
+  done:s=>{ draft.effects.push({full:s.value, kw:false}); updCard(); queue.push(S_COUNT); }
+};
+const S_COUNT={ rail:2, hub:"几条", cap:"来几条效果？",
+  segs:()=>[{label:["1","条"],color:"#94F2D4",value:1},{label:["2","条"],color:"#A5E8B7",value:2}],
+  done:s=>{ draft.nEff=s.value;
+    if(draft.cls.vanilla) enqueueEffects(); 
+    else queue.push(S_HASCOND);
+  }
+};
+const S_HASCOND={ rail:3, hub:"触发?", cap:"带触发条件吗？",
+  segs:()=>[{label:["有","条件"],color:"#FFFAE6",value:"yes"},{label:["无","条件"],color:MUTED,value:"no"}],
+  done:s=>{ if(s.value==="yes"){ draft.hasCond=true; queue.push(S_COND); }
+    else{ draft.hasCond=false; draft.cond=null; enqueueEffects(); } }
+};
+const S_COND={ rail:4, hub:"条件", cap:"是哪个触发条件？",
+  segs:()=>draft.cls.triggers.map((t,i)=>({label:t.short,color:PAL[i%5],value:i,tr:t})),
+  done:s=>{ const t=s.tr; draft._tr=t;
+    if(t.x && t.x.length>1){ queue.push(S_X); }
+    else{ const x=t.x?t.x[0]:null; draft.condX=x; draft.cond=t.label(x); updCard(); enqueueEffects(); } }
+};
+const S_X={ rail:5, hub:"X", cap:"条件里的 X 是多少？",
+  segs:()=>draft._tr.x.map((v,i)=>({label:String(v),color:PAL[i%5],value:v})),
+  done:s=>{ draft.condX=s.value; draft.cond=draft._tr.label(s.value); updCard(); enqueueEffects(); }
+};
+function S_EFF(n){ return { rail:6, hub:"效果"+n, cap:`转出第 ${n} 条效果`,
+  segs:()=>{ const pool=effectPool(); return pool.map((e,i)=>({label:e.short,color:PAL[i%5],value:i,eff:e, weight: e.weight || 1})); },
+  done:s=>{ const e=s.eff; usedEff.push(e.short);
+    const strong=!!draft.cond, rep=draft._tr&&draft._tr.repeat;
+    const txt = (rep && typeof e.rep==="function") ? e.rep(draft.condX)
+              : (typeof e.full==="function") ? e.full(strong,draft.condX) : e.full;
+    draft.effects.push({full:txt,kw:!!e.kw}); updCard(); }
+};}
+
+/* ===== 结算 ===== */
+function finish(){
+  if(draft.fin) return;
+  const c=draft.cls,cost=draft.cost;
+  let b=cost*2+1; if(c.big)b+=3; if(c.vanilla)b+=2;
+  b-= draft.effects.length*2 + (draft.cond?2:0); b=Math.max(2,b);
+  draft.atk=Math.max(1,Math.round(b*(0.4+Math.random()*0.3))); draft.hp=Math.max(1,b-draft.atk);
+  draft.fin=true; doneSet.add(7); updCard();
+  cap.innerHTML="🎉 设计完成！"; hub.textContent="完成"; setRail(7);
+  spinBtn.disabled=true; spinBtn.textContent="已完成"; autoBtn.disabled=true;
+  const slot=document.querySelector(".card-slot");
+  if(!document.getElementById("againBtn")){
+    const b2=document.createElement("button"); b2.id="againBtn"; b2.className="ghost-btn"; b2.textContent="↻ 再设计一张";
+    b2.onclick=()=>{b2.remove();resetGame();}; slot.appendChild(b2);
+  }
+}
+
+/* ===== 卡面 ===== */
+function updCard(){
+  const c=draft.cls;
+  const cc=document.getElementById("cCost");
+  if(draft.cost!=null){ cc.classList.remove("q"); cc.firstChild.textContent=draft.cost; }
+  else{ cc.classList.add("q"); cc.firstChild.textContent="?"; }
+  
+  document.getElementById("cName").textContent = c?`随机${c.name}随从`:"随机 ? 随从";
+  document.getElementById("cType").textContent = `${draft.cost??"?"} 费 · ${c?c.name:"?"} · 随从${c&&c.big?" · 大身材":""}`;
+
+  const eff=document.getElementById("cEff"); eff.innerHTML="";
+  if(draft.cond){
+    const tr=document.createElement("div"); tr.className="trigger";
+    tr.innerHTML=`<b>【触发：${draft.cond}】</b><br><span style="font-size:11px;color:var(--muted)">满足条件时，下列效果强化</span>`;
+    eff.appendChild(tr);
+  }
+  const kws=draft.effects.filter(e=>e.kw), lines=draft.effects.filter(e=>!e.kw);
+  if(kws.length){ const k=document.createElement("div"); k.className="kws"; k.innerHTML=kws.map(e=>`<span class="kw">${e.full}</span>`).join(""); eff.appendChild(k); }
+  lines.forEach(e=>addLine(eff, draft.cond?`<span class="strong">${e.full}</span>`:e.full));
+
+  const a=document.getElementById("cAtk"), h=document.getElementById("cHp");
+  if(draft.fin){ a.classList.remove("q"); h.classList.remove("q"); a.innerHTML=`${draft.atk}`; h.innerHTML=`${draft.hp}`; }
+  else{ a.classList.add("q"); h.classList.add("q"); a.innerHTML=`?`; h.innerHTML=`?`; }
+}
+function addLine(box,html){ const el=document.createElement("div"); el.className="eff-line"; el.innerHTML=`<span class="dot">◆</span><span>${html}</span>`; box.appendChild(el); }
+
+resetGame();
+</script>
+</body>
+</html>
